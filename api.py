@@ -58,7 +58,7 @@ class HangmanAPI(remote.Service):
                 'A User with that name does not exist!')
         word = words.get_random_word()
         word_length = len(word)
-        user_word = "".join(str(0) for i in range(word_length))
+        user_word = "".join('-' for i in range(word_length))
         print user_word
         game = Game.new_game(user.key, word, user_word)
         num = str(len(game.target))
@@ -90,6 +90,9 @@ class HangmanAPI(remote.Service):
             return game.to_form('Game already over! you missed "{}"'.format(game.target))
 
         request.guess = request.guess.lower()
+        if len(request.guess) == 0:
+          raise endpoints.NotFoundException(
+                'You should enter a letter or test if you can guess the entire word!')
         if len(request.guess) > 1:
             game.attempts_remaining -= 1
             if request.guess == game.target:
