@@ -22,6 +22,8 @@ GET_GAME_REQUEST = endpoints.ResourceContainer(
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),)
+HIGH_SCORES_REQUEST = endpoints.ResourceContainer(limit=messages.IntegerField(1,
+                                                  variant=messages.Variant.INT32,))
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
@@ -88,7 +90,7 @@ class HangmanAPI(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
             if game.game_over == True:
-              return StringMessage(message='Game is over and can\'t be deleted!')
+                return StringMessage(message='Game is over and can\'t be deleted!')
             game.key.delete()
             return StringMessage(message='removed!')
         else:
@@ -185,14 +187,15 @@ class HangmanAPI(remote.Service):
         """Return all scores"""
         return ScoreForms(items=[score.to_form() for score in Score.query()])
 
-    @endpoints.method(response_message=ScoreForms,
+    @endpoints.method(request_message=HIGH_SCORES_REQUEST,
+                      response_message=ScoreForms,
                       path='scores/leader-board',
                       name='get_high_scores',
                       http_method='GET')
     def get_high_scores(self, request):
         """Return all scores"""
         scores = Score.query(Score.won == True).order(
-            Score.guesses).order(-Score.date)
+            Score.guesses).order(-Score.date).fetch(request.limit)
         return ScoreForms(items=[score.to_form() for score in scores])
 
     @endpoints.method(response_message=UserForms,
