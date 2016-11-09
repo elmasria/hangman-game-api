@@ -12,7 +12,25 @@ class User(ndb.Model):
     """User profile"""
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
+    points = ndb.IntegerProperty(required=True, default=0)
 
+    def to_form(self):
+        return UserForm(name=self.name, email=self.email,
+                points=self.points)
+
+class UserForm(messages.Message):
+
+    """"User object"""
+    name = messages.StringField(1,required=True)
+    email = messages.StringField(2)
+    points = messages.IntegerField(3,required=True)
+
+
+
+class UserForms(messages.Message):
+
+    """Return multiple UserForms"""
+    items = messages.MessageField(UserForm, 1, repeated=True)
 
 class Game(ndb.Model):
 
@@ -20,6 +38,7 @@ class Game(ndb.Model):
     target = ndb.StringProperty(required=True)
     user_word = ndb.StringProperty(required=True)
     used_char =  ndb.StringProperty(repeated=True)
+    steps = ndb.PickleProperty(required=True, default=[])
     attempts_allowed = ndb.IntegerProperty(required=True, default=15)
     attempts_remaining = ndb.IntegerProperty(required=True, default=15)
     game_over = ndb.BooleanProperty(required=True, default=False)
@@ -37,7 +56,7 @@ class Game(ndb.Model):
         game.put()
         return game
 
-    def to_form(self, message):
+    def to_form(self, message=""):
         """Returns a GameForm representation of the Game"""
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
@@ -49,10 +68,15 @@ class Game(ndb.Model):
         form.message = message
         return form
 
+
     def end_game(self, won=False):
         """Ends the game - if won is True, the player won. - if won is False,
         the player lost."""
         self.game_over = True
+
+        user = User.query(User.name == self.user.get().name).get()
+        user.points = user.points + self.attempts_remaining + 1
+        user.put()
         self.put()
         # Add the game to the score 'board'
         score = Score(user=self.user, date=date.today(), won=won,
@@ -71,12 +95,16 @@ class GameForm(messages.Message):
     message = messages.StringField(6, required=True)
     user_name = messages.StringField(7, required=True)
 
+class GameForms(messages.Message):
+
+    """Return multiple GameForms"""
+    items = messages.MessageField(GameForm, 1, repeated=True)
+
 
 class NewGameForm(messages.Message):
 
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
-
 
 class Score(ndb.Model):
 
