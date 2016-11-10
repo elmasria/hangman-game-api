@@ -1,0 +1,49 @@
+Reflect on The Design
+
+	* What additional properties did you add to your models and why?
+
+		While building the game architecture, I have added some
+		additional properties to the models as follow:
+
+		User Model
+
+			Property: points (IntegerProperty) it helps to rank users
+					  base on that
+
+		Game Model
+
+			Property: user_word (StringProperty) present word with dashes
+					  for the letters that haven't been guessed yet.
+	    	Property: used_char (StringProperty) present the already used
+	    			  letter and it helps to prevent decreasing attempts in
+	    			  case letter is repeated.
+	    	Property: steps (PickleProperty) to store steps so user will
+	    			  be able to see a 'history' of moves for each game.
+
+
+	* What were some of the trade-offs or struggles you faced when
+	implementing the new game logic?
+
+		Actually Hangman is not a difficult game to create. However, I faced several design
+		decisions regarding architecture of the game and API.
+
+		one of the complicated decision was figuring out a good way to score the game.
+		I decide to make tow different type off scoring. dashboard and ranking are different
+		so user may be first in ranking but it is not one of the first places in the dashboard
+		cause dashboard depend on the score (how fast user can guess the word) and time in one game.
+		however, ranking is based on points (remaining attempts) that user collect each time he/she
+		win a game
+
+		while trying to set limit for returning highest score results, It was one of the
+		challenge to now how to change the input filed from string to
+		Integer. after reading the documentation I have found that I should
+		set IntegerField as an input and pass variant as one of parameter
+		variant=messages.Variant.INT32
+
+		difference between endpoints.ResourceContainer and messages. I am not sure that
+		I have understand it correctly. But what I have understand is to use message
+		if I need to pass input directly, and endpoints.ResourceContainer when I need
+		to pass then as ClassForm
+
+
+
