@@ -134,8 +134,8 @@ class HangmanAPI(remote.Service):
 
         request.guess = request.guess.lower()
         if len(request.guess) == 0:
-            msg = 'You should enter a letter or'+
-            ' test if you can guess the entire word!'
+            msg = "You should enter a letter or"\
+                "test if you can guess the entire word!"
             raise endpoints.NotFoundException(msg)
         if len(request.guess) > 1:
             game.attempts_remaining -= 1
