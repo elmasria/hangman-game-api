@@ -50,8 +50,8 @@ class Game(ndb.Model):
         game = Game(user=user,
                     target=word,
                     user_word=user_word,
-                    attempts_allowed=11,
-                    attempts_remaining=11,
+                    attempts_allowed=15,
+                    attempts_remaining=15,
                     game_over=False)
         game.put()
         return game
