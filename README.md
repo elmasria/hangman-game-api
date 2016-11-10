@@ -93,7 +93,7 @@ The dashboard is based on each game remaining attenps number (number of points f
 #### cancel_game
 
  * Path: 'game/cancel/{urlsafe_game_key}'
- * Method: 'PUT'
+ * Method: 'DELETE'
  * Parameters: urlsafe_game_key
  * Returns: StringMessage
  * Description: Cancels requested game if it is not over.
