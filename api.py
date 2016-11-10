@@ -22,8 +22,8 @@ GET_GAME_REQUEST = endpoints.ResourceContainer(
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),)
-HIGH_SCORES_REQUEST = endpoints.ResourceContainer(number_of_results=messages.IntegerField(1,
-                                                  variant=messages.Variant.INT32,))
+HIGH_SCORES_REQUEST = endpoints.ResourceContainer(
+    number_of_results=messages.IntegerField(1, variant=messages.Variant.INT32))
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
@@ -64,8 +64,9 @@ class HangmanAPI(remote.Service):
         print user_word
         game = Game.new_game(user.key, word, user_word)
         num = str(len(game.target))
-
-        return game.to_form('Good luck playing Hangman! {} letters, to find the word'.format(num))
+        msg = 'Good luck playing Hangman! {} letters, to find the word'.format(
+            num)
+        return game.to_form(msg)
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
@@ -90,7 +91,8 @@ class HangmanAPI(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
             if game.game_over == True:
-                return StringMessage(message='Game is over and can\'t be deleted!')
+                return StringMessage(
+                    message='Game is over and can\'t be deleted!')
             game.key.delete()
             return StringMessage(message='removed!')
         else:
@@ -127,12 +129,14 @@ class HangmanAPI(remote.Service):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
-            return game.to_form('Game already over! you missed "{}"'.format(game.target))
+            return game.to_form('Game already over! you missed "{}"'.format(
+                game.target))
 
         request.guess = request.guess.lower()
         if len(request.guess) == 0:
-            raise endpoints.NotFoundException(
-                'You should enter a letter or test if you can guess the entire word!')
+            msg = 'You should enter a letter or'+
+            ' test if you can guess the entire word!'
+            raise endpoints.NotFoundException(msg)
         if len(request.guess) > 1:
             game.attempts_remaining -= 1
             if request.guess == game.target:
